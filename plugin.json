@@ -2,7 +2,7 @@
   "name": "siyuan-plugin-bubble",
   "author": "niop",
   "url": "",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "minAppVersion": "3.0.1",
   "backends": [
     "windows",
@@ -36,6 +36,6 @@
     ]
   },
   "keywords": [
-    "niop", "backgrounds","dynamic backgrounds","bubble","背景","泡泡","气泡","动态背景"
+    "niop", "backgrounds","dynamic backgrounds","bubble","背景","泡泡","气泡","动态背景","壁纸"
   ]
 }
