@@ -1,4 +1,5 @@
 
+[中文](https://github.com/AirParty/siyuan-plugin-bubble/blob/main/README_zh_CN.md)
 # Function
 
 Display document content in floating bubbles while providing customizable backgrounds, supporting images, videos, and dynamic webpages.
