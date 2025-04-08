@@ -54,3 +54,9 @@ For example, when using the **Savor** theme, add and enable this code in your **
     background-color: transparent;
 }
 ```
+
+# Others  
+
+1. Double-click the wallpaper name in the settings interface to switch directly.  
+2. The play filter refreshes only when the settings interface is closed; use hotkeys to switch afterward.  
+3. For excellent dynamic wallpapers, we recommend looking for them in Wallpaper Engine.

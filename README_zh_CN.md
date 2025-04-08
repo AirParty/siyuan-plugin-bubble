@@ -51,3 +51,9 @@
     background-color: transparent;
 }
 `
+
+# 其他
+
+1. 在设置界面双击壁纸名称可以直接切换。
+2. 播放筛选器在关闭设置界面时才会刷新，之后使用快捷键切换就好。
+3. 优秀的动态壁纸推荐wallpaper engine找找。
