@@ -16,6 +16,8 @@ Display document content in floating bubbles while providing customizable backgr
 
 ![preview](https://github.com/user-attachments/assets/c2b8598a-2b15-49fc-a19d-f3d24aabbe49)
 
+![preview2](https://github.com/user-attachments/assets/617188b4-7dc0-4c20-9fb4-3b83df16b32e)
+
 ![](https://github.com/user-attachments/assets/5f2dc064-b271-4211-85a2-1aead3211b20)
 
 
