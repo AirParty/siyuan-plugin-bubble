@@ -7,17 +7,21 @@ Display document content in floating bubbles while providing customizable backgr
 
 1. Open the plugin  
 2. Place wallpaper files you wish to use in your Siyuan Note workspace folder `\data\public\backgrounds\`.  
-3. Open settings using the default shortcut `ctrl+shift+F9`, or click the plugin icon in the top-right corner of the Siyuan interface: ![sc_2025-04-08_12-32-06](assets/sc_2025-04-08_12-32-06-20250408123210-fwnp8uv.jpg)  
+3. Open settings using the default shortcut `ctrl+shift+F9`, or click the plugin icon in the top-right corner of the Siyuan interface: ![toolbaricon](https://github.com/user-attachments/assets/2f74322e-abe5-4f21-b6df-cede7334c489)
+
 4. Click the `Reload Resource Files` button to refresh wallpaper files. Click "Play Next" to switch wallpapers. 
 5. You can also use the shortcut key `Ctrl+Shift+F8` to quickly switch wallpapers.
 
 # Preview
 
-![sc_2025-04-08_12-18-23](assets/sc_2025-04-08_12-18-23-20250408121835-jl41rzr.jpg)![sc_2025-04-08_12-33-55](assets/sc_2025-04-08_12-33-55-20250408123359-zc1wto6.jpg)
+![preview](https://github.com/user-attachments/assets/c2b8598a-2b15-49fc-a19d-f3d24aabbe49)
+
+![](https://github.com/user-attachments/assets/5f2dc064-b271-4211-85a2-1aead3211b20)
+
 
 # Resource File Instructions
 
-![sc_2025-04-08_12-48-38](assets/sc_2025-04-08_12-48-38-20250408124845-cuz7242.jpg)
+![resource folder](https://github.com/user-attachments/assets/ab28d889-abfe-4036-b9d5-2fd06d6bbec1)
 
 `v://Siyuan` is my Siyuan Note workspace. If yours is on a different site, navigate to the corresponding drive. If the folder doesn’t exist, the plugin will automatically create it on first launch and add two dynamic webpage wallpapers: `space` and `stars`.
 
