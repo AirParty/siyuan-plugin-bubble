@@ -1,0 +1,21 @@
+{
+    "realPath":"data/public/backgrounds/",
+    "pluginName": "泡泡",
+    "playRandom":"随机播放",
+    "playImg":"图片",
+    "playWeb":"网页",
+    "playVideo":"视频",
+    "playOrderList":"顺序播放",
+    "playChangeOnStart":"启动时自动切换",
+    "generateRandomList":"生成随机播放列表",
+    "reloadPlayListAssets":"重新加载资源文件",
+    "timedSwitch":"定时切换",
+    "setSwitchTime":"时长:",
+    "generateList":"生成随机播放列表",
+    "playList":"播放列表",
+    "localAssetsFolder":"本地资源文件夹",
+    "addTopBarIcon":"泡泡",
+    "playNext":"播放下一个",
+    "refreshresourcefiles":"刷新资源文件",
+    "openSetting":"设置"
+}

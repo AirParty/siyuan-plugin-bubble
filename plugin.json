@@ -1,0 +1,41 @@
+{
+  "name": "siyuan-plugin-bubble",
+  "author": "niop",
+  "url": "",
+  "version": "0.9.0",
+  "minAppVersion": "3.0.1",
+  "backends": [
+    "windows",
+    "linux",
+    "darwin"
+  ],
+  "frontends": [
+    "desktop",
+    "desktop-window",
+    "browser-desktop",
+    "browser-mobile"
+  ],
+  "displayName": {
+    "default": "Bubble",
+    "zh_CN": "泡泡"
+  },
+  "description": {
+    "default": "Display note content in bubbles with customizable backgrounds, supporting dynamic backgrounds such as images, videos, and web pages.",
+    "zh_CN": "让笔记内容显示在气泡中，可自定义背景，支持图片，视频和网页类型的动态背景"
+  },
+  "readme": {
+    "default": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "openCollective": "",
+    "patreon": "",
+    "github": "",
+    "custom": [
+      ""
+    ]
+  },
+  "keywords": [
+    "niop", "backgrounds","dynamic backgrounds","bubble","背景","泡泡","气泡","动态背景"
+  ]
+}

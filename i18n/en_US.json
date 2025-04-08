@@ -1,0 +1,21 @@
+{
+    "realPath":"data/public/backgrounds/",
+    "pluginName": "bubble",
+    "playRandom":"Random",
+    "playImg":"pictures",
+    "playWeb":"web",
+    "playVideo":"video",
+    "playOrderList":"顺序播放",
+    "playChangeOnStart":"auto play next on start",
+    "generateRandomList":"Generate Random List",
+    "reloadPlayListAssets":"Reload Assets",
+    "timedSwitch":"timed Switch",
+    "setSwitchTime":"",
+    "generateList":"Generate Playlist",
+    "playList":"Playlist Order",
+    "localAssetsFolder":"Local Assets Folder",
+    "addTopBarIcon":"bubble",
+    "playNext":"Play next",
+    "refreshresourcefiles":"Refresh resource files",
+    "openSetting":"setting"
+}

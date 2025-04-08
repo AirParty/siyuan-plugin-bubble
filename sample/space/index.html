@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPACE</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 配置参数 - 可以方便修改
+        const CONFIG = {
+            particles: {
+                count: 30,             // 粒子数量
+                size: {
+                    min: 0.5,            // 最小粒子大小
+                    max: 3           // 最大粒子大小
+                },
+                speed: 10.8,            // 粒子速度因子
+                fadeSpeed: 0.01,       // 粒子淡入淡出速度
+                colorChange: 0.0005,     // 颜色变化速度
+                orbitRadius: {         // 轨道半径范围
+                    min: 25,
+                    max: 180
+                },
+                attraction: 0.55,      // 吸引力系数
+                minSpeed: 0.002,         // 最小速度（低于此速度会"死亡"）
+                collisionEffect: 0.8,  // 碰撞效果系数
+                disturbance: 0.002,      // 随机扰动
+                powerRecoveryRate: 0.15, // 轨道上动力恢复速率
+                powerConsumptionRate: 0.001, // 动力消耗速率
+                orbitSpeedFactor: 10.2,  // 轨道上速度倍率
+            },            
+            
+            // 动画配置
+            fps: 30,                   // 目标帧率
+            trailEffect: 0.2,         // 拖尾效果，值越小拖尾越长
+            
+            // 额外效果
+            glowEffect: 0.4,           // 发光效果强度
+            backgroundStars: 200,      // 背景星星数量
+            starSize: {
+                min: 0.2,
+                max: 1.2
+            }
+        };
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2;
+        
+        // 设置canvas尺寸为窗口大小
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+        }
+        
+        resizeCanvas();
+        
+        // 颜色数组
+        const colors = [
+            '#FF1493', '#00FFFF', '#FFA500', '#7B68EE', 
+            '#32CD32', '#FF4500', '#1E90FF', '#FFD700',
+            '#8A2BE2', '#00FA9A', '#FF6347', '#9370DB',
+            '#FF1E8E', '#00BFFF', '#FFC125', '#8A00BE'
+        ];
+        
+        // 创建背景星星
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = CONFIG.starSize.min + Math.random() * (CONFIG.starSize.max - CONFIG.starSize.min);
+                this.opacity = 0.1 + Math.random() * 0.7;
+                this.pulseSpeed = 0.005 + Math.random() * 0.01;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            
+            update(time) {
+                // 星星闪烁效果
+                this.opacity = 0.1 + Math.abs(Math.sin(time * this.pulseSpeed + this.pulsePhase)) * 0.7;
+            }
+            
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        class Particle {
+            constructor() {
+                this.reset();
+                // 初始位置随机分布在屏幕上
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.alpha = Math.random() * 0.5+0.2; // 开始时半透明
+            }
+            
+            reset() {
+                // 随机位置，在屏幕边缘生成
+                const edge = Math.floor(Math.random() * 4);
+                switch (edge) {
+                    case 0: // 顶部
+                        this.x = Math.random() * canvas.width;
+                        this.y = -CONFIG.particles.size.max;
+                        break;
+                    case 1: // 右侧
+                        this.x = canvas.width + CONFIG.particles.size.max;
+                        this.y = Math.random() * canvas.height;
+                        break;
+                    case 2: // 底部
+                        this.x = Math.random() * canvas.width;
+                        this.y = canvas.height + CONFIG.particles.size.max;
+                        break;
+                    case 3: // 左侧
+                        this.x = -CONFIG.particles.size.max;
+                        this.y = Math.random() * canvas.height;
+                        break;
+                }
+                
+                // 随机大小
+                this.originalSize = CONFIG.particles.size.min + Math.random() * 
+                        (CONFIG.particles.size.max - CONFIG.particles.size.min);
+                this.size = 0.1; // 开始时极小
+                
+                // 随机颜色
+                this.colorIndex = Math.floor(Math.random() * colors.length);
+                this.color = colors[this.colorIndex];
+                
+                // 随机初始速度 - 向屏幕中心方向移动
+                const angleToCenter = Math.atan2(centerY - this.y, centerX - this.x);
+                const angleVariation = (Math.random() - 0.5) * Math.PI/3; // ±60度变化
+                const moveAngle = angleToCenter + angleVariation;
+                
+                this.speedX = Math.cos(moveAngle) * CONFIG.particles.speed * (0.5 + Math.random());
+                this.speedY = Math.sin(moveAngle) * CONFIG.particles.speed * (0.5 + Math.random());
+                
+                // 状态
+                this.state = "growing"; // growing, active, shrinking, dying
+                this.alpha = 0;
+                
+                // 尺寸变化参数
+                this.growDuration = 100 + Math.random() * 200; 
+                
+                // 颜色变化
+                this.colorSpeed = CONFIG.particles.colorChange * (Math.random() * 2 + 0.5);
+                this.colorPhase = Math.random() * Math.PI * 2;
+                
+                // 动力值相关属性
+                this.power = 100; // 当前动力值
+                this.maxPower = 100 + Math.random() * 50; // 最大动力值 
+                this.targetOrbitSpeed = (0.5 + Math.random()) * CONFIG.particles.orbitSpeedFactor; // 目标在轨速度
+                this.orbitSpeed = 0; // 当前在轨速度
+                this.inOrbit = false; // 是否在轨道上                
+                
+                // 物理属性
+                this.mass = (this.originalSize / CONFIG.particles.size.max) * 10 + 1; // 质量与大小成正比
+                this.acceleration = { x: 0, y: 0 };
+                this.maxSpeed = 1 + Math.random() * CONFIG.particles.speed; // 最大速度
+                this.orbitRadius = CONFIG.particles.orbitRadius.min + 
+                                Math.random() * (CONFIG.particles.orbitRadius.max - CONFIG.particles.orbitRadius.min);
+                this.disturbanceFactor = Math.random() * CONFIG.particles.disturbance;
+                this.vibrationPhase = Math.random() * Math.PI * 2;
+                this.vibrationSpeed = 0.01 + Math.random() * CONFIG.particles.orbitSpeedFactor;
+                this.dying = false;
+            }
+            
+            // 添加轨道跟踪逻辑
+            applyAttraction(targetX, targetY) {
+                // 计算到目标的方向向量
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                
+                // 计算距离
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 0) {
+                    const orbitRange = this.orbitRadius * 0.15; // 轨道宽度范围
+                    
+                    // 判断是否在轨道上
+                    if (Math.abs(distance - this.orbitRadius) < orbitRange) {
+                        this.inOrbit = true;
+                        
+                        // 在轨道上，沿切线方向运动
+                        const tangentX = -dy / distance;
+                        const tangentY = dx / distance;
+                        
+                        // 向心力保持在轨道上
+                        const orbitForce = 0.05 * this.mass * (this.maxSpeed * this.maxSpeed) / Math.max(1, distance);
+                        
+                        // 计算径向距离差异
+                        const radiusDiff = (this.orbitRadius - distance) / this.orbitRadius;
+                        
+                        // 应用向心力保持轨道
+                        this.acceleration.x += (radiusDiff * dx / distance) * orbitForce;
+                        this.acceleration.y += (radiusDiff * dy / distance) * orbitForce;
+                        
+                        // 计算当前切线速度
+                        const currentSpeed = Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY);
+                        
+                        // 如果当前速度与目标在轨速度不同，逐渐调整
+                        if (Math.abs(currentSpeed - this.targetOrbitSpeed) > 0.01) {
+                            // 计算速度调整系数
+                            const speedAdjustFactor = currentSpeed > this.targetOrbitSpeed ? 0.98 : 1.02;
+                            
+                            // 调整速度向目标在轨速度靠近
+                            const adjustedSpeed = currentSpeed * speedAdjustFactor;
+                            
+                            // 保持方向不变，只调整速度大小
+                            if (currentSpeed > 0) {
+                                this.speedX = (this.speedX / currentSpeed) * adjustedSpeed;
+                                this.speedY = (this.speedY / currentSpeed) * adjustedSpeed;
+                            }
+                        }
+                        
+                        // 应用切线加速度，使粒子围绕轨道运动
+                        this.acceleration.x += tangentX * orbitForce * 5;
+                        this.acceleration.y += tangentY * orbitForce * 5;
+                        
+                        // 在轨道上时恢复动力值
+                        this.power = Math.min(this.maxPower, this.power + CONFIG.particles.powerRecoveryRate);
+                        
+                        // 更新当前轨道速度
+                        this.orbitSpeed = Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY);
+                    } else {
+                        this.inOrbit = false;
+                        
+                        // 不在轨道上，计算接近轨道的方向
+                        if (distance > this.orbitRadius) {
+                            // 距离大于轨道半径，计算接近轨道的方向
+                            const tangentAngle = Math.atan2(dy, dx) + Math.PI/2;
+                            const approachX = Math.cos(tangentAngle);
+                            const approachY = Math.sin(tangentAngle);
+                            
+                            // 理想轨道方向（切线方向）
+                            const tangentX = -dy / distance;
+                            const tangentY = dx / distance;
+                            
+                            // 计算混合向量（部分接近轨道，部分沿轨道方向）
+                            const mixFactor = 0.6; 
+                            
+                            const mixedX = mixFactor * approachX + (1-mixFactor) * (dx/distance);
+                            const mixedY = mixFactor * approachY + (1-mixFactor) * (dy/distance);
+                            
+                            // 标准化混合向量
+                            const mixedLen = Math.sqrt(mixedX*mixedX + mixedY*mixedY);
+                            const normalizedX = mixedX / mixedLen;
+                            const normalizedY = mixedY / mixedLen;
+                            
+                            // 应用力以接近轨道
+                            const force = CONFIG.particles.attraction / this.mass;
+                            this.acceleration.x += normalizedX * force;
+                            this.acceleration.y += normalizedY * force;
+                            
+                            // 检查是否靠近轨道且方向与轨道方向接近
+                            const nearOrbit = Math.abs(distance - this.orbitRadius) < orbitRange * 2;
+                            
+                            // 计算粒子运动方向
+                            const particleDirection = Math.atan2(this.speedY, this.speedX);
+                            
+                            // 计算理想轨道方向（切线方向）
+                            const idealOrbitDirection = Math.atan2(tangentY, tangentX);
+                            
+                            // 计算方向夹角（取最小的那个角度差）
+                            let angleDiff = Math.abs(particleDirection - idealOrbitDirection);
+                            angleDiff = Math.min(angleDiff, Math.PI * 2 - angleDiff);
+                            
+                            // 如果远离轨道或方向不接近轨道方向，消耗动力
+                            if (!(nearOrbit && angleDiff < Math.PI / 6)) {
+                                // 消耗动力来改变速度
+                                if (this.power > 0) {
+                                    const powerFactor = Math.min(1, this.power / 20); // 动力值影响系数
+                                    this.power = Math.max(0, this.power - CONFIG.particles.powerConsumptionRate);
+                                    
+                                    // 基于动力值提高加速度
+                                    this.acceleration.x *= (1 + powerFactor);
+                                    this.acceleration.y *= (1 + powerFactor);
+                                }
+                            }
+                        } else {
+                            // 距离小于轨道半径，从内侧接近轨道
+                            const tangentAngle = Math.atan2(dy, dx) - Math.PI/2;
+                            const approachX = Math.cos(tangentAngle);
+                            const approachY = Math.sin(tangentAngle);
+                            
+                            // 内轨道时切线方向
+                            const tangentX = dy / distance;
+                            const tangentY = -dx / distance;
+                            
+                            const mixFactor = 0.7;
+                            const mixedX = mixFactor * approachX + (1-mixFactor) * (-dx/distance);
+                            const mixedY = mixFactor * approachY + (1-mixFactor) * (-dy/distance);
+                            
+                            const mixedLen = Math.sqrt(mixedX*mixedX + mixedY*mixedY);
+                            const normalizedX = mixedX / mixedLen;
+                            const normalizedY = mixedY / mixedLen;
+                            
+                            const force = CONFIG.particles.attraction / this.mass;
+                            this.acceleration.x += normalizedX * force;
+                            this.acceleration.y += normalizedY * force;
+                            
+                            // 检查是否靠近轨道且方向与轨道方向接近
+                            const nearOrbit = Math.abs(distance - this.orbitRadius) < orbitRange * 2;
+                            
+                            // 计算粒子运动方向
+                            const particleDirection = Math.atan2(this.speedY, this.speedX);
+                            
+                            // 计算理想轨道方向（切线方向）
+                            const idealOrbitDirection = Math.atan2(tangentY, tangentX);
+                            
+                            // 计算方向夹角
+                            let angleDiff = Math.abs(particleDirection - idealOrbitDirection);
+                            angleDiff = Math.min(angleDiff, Math.PI * 2 - angleDiff);
+                            
+                            // 如果远离轨道或方向不接近轨道方向，消耗动力
+                            if (!(nearOrbit && angleDiff < Math.PI / 6)) {
+                                // 消耗动力值
+                                if (this.power > 0) {
+                                    const powerFactor = Math.min(1, this.power / 20);
+                                    this.power = Math.max(0, this.power - CONFIG.particles.powerConsumptionRate);
+                                    
+                                    this.acceleration.x *= (1 + powerFactor);
+                                    this.acceleration.y *= (1 + powerFactor);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 添加随机扰动
+                    this.acceleration.x += (Math.random() - 0.5) * this.disturbanceFactor;
+                    this.acceleration.y += (Math.random() - 0.5) * this.disturbanceFactor;
+                    
+                    // 添加振动效果
+                    const time = Date.now(); // 获取当前时间
+                    const vibration = Math.sin(time * this.vibrationSpeed + this.vibrationPhase) * this.disturbanceFactor;
+                    this.acceleration.x += vibration;
+                    this.acceleration.y += vibration;
+                }
+            }
+            
+            // 检测与其他粒子的碰撞
+            checkCollision(otherParticle) {
+                // 两粒子中心距离
+                const dx = this.x - otherParticle.x;
+                const dy = this.y - otherParticle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // 两粒子半径之和
+                const minDistance = this.size + otherParticle.size;
+                
+                // 如果距离小于两粒子半径之和，发生碰撞
+                if (distance < minDistance) {
+                    // 1. 粒子融合逻辑 - 较大的吞并较小的
+                    if (this.mass > otherParticle.mass * 1.5) {
+                        // 较大粒子增大，吸收部分质量
+                        this.mass += otherParticle.mass * 0.5;
+                        this.size = Math.pow(this.mass / 10, 0.6) * CONFIG.particles.size.max / 2;
+                        this.originalSize = this.size;
+                        
+                        // 根据动量守恒调整速度
+                        const totalMomentumX = this.speedX * this.mass + otherParticle.speedX * otherParticle.mass * 0.5;
+                        const totalMomentumY = this.speedY * this.mass + otherParticle.speedY * otherParticle.mass * 0.5;
+                        
+                        this.speedX = totalMomentumX / this.mass;
+                        this.speedY = totalMomentumY / this.mass;
+                        
+                        // 对方粒子重置
+                        otherParticle.reset();
+                        
+                        return true;
+                    } 
+                    else if (otherParticle.mass > this.mass * 1.5) {
+                        // 对方较大，我方被吞并，不处理（对方会处理）
+                        return false;
+                    }
+                    else {
+                        // 2. 两个粒子质量相近，进行弹性碰撞
+                        // 计算碰撞方向单位向量
+                        const nx = dx / distance;
+                        const ny = dy / distance;
+                        
+                        // 相对速度投影到碰撞方向
+                        const vx = this.speedX - otherParticle.speedX;
+                        const vy = this.speedY - otherParticle.speedY;
+                        const dotProduct = vx * nx + vy * ny;
+                        
+                        // 如果粒子正在远离，不处理碰撞
+                        if (dotProduct >= 0) return false;
+                        
+                        // 冲量计算
+                        const impulse = 2 * dotProduct / (this.mass + otherParticle.mass) * CONFIG.particles.collisionEffect;
+                        
+                        // 应用冲量更新速度
+                        this.speedX -= impulse * otherParticle.mass * nx;
+                        this.speedY -= impulse * otherParticle.mass * ny;
+                        
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            update(time, deltaTime, mouseX, mouseY) {
+                // 更新颜色
+                const colorShift = Math.sin(time * this.colorSpeed + this.colorPhase);
+                const newColorIndex = (this.colorIndex + Math.floor((colorShift + 1) * 2)) % colors.length;
+                this.color = colors[newColorIndex];
+                
+                // 大小管理
+                if (this.state === "growing") {
+                    // 从极小逐渐变大
+                    this.size = 0.1 + (this.originalSize - 0.1) * Math.min(1, time / this.growDuration);
+                    this.alpha += CONFIG.particles.fadeSpeed * deltaTime / 16;
+                    
+                    if (time / this.growDuration >= 1) {
+                        this.size = this.originalSize;
+                        this.state = "active";
+                        this.alpha = 1;
+                    }
+                } else if (this.state === "dying") {
+                    // 粒子因低速或动力不足而"死亡"
+                    this.alpha -= CONFIG.particles.fadeSpeed * deltaTime / 16;
+                    
+                    if (this.alpha <= 0) {
+                        this.reset();
+                    }
+                }
+                
+                // 平滑移动 - 基于实际的帧间隔
+                const normalizedDelta = deltaTime / 16; // 标准化到16ms一帧
+                
+                // 应用轨道跟踪逻辑
+                this.applyAttraction(mouseX, mouseY);
+                
+                // 更新速度
+                this.speedX += this.acceleration.x * normalizedDelta;
+                this.speedY += this.acceleration.y * normalizedDelta;
+                
+                // 限制最大速度
+                const speed = Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY);
+                if (speed > this.maxSpeed) {
+                    this.speedX = (this.speedX / speed) * this.maxSpeed;
+                    this.speedY = (this.speedY / speed) * this.maxSpeed;
+                }
+                
+                // 检查是否速度太低或动力值耗尽
+                if ((speed < CONFIG.particles.minSpeed || this.power <= 0) && this.state === "active" && !this.dying) {
+                    this.state = "dying";
+                    this.dying = true;
+                }
+                
+                // 重置加速度
+                this.acceleration = { x: 0, y: 0 };
+                
+                // 使用标准化的增量更新位置
+                this.x += this.speedX * normalizedDelta;
+                this.y += this.speedY * normalizedDelta;
+                
+                // 边界检查 - 粒子离开屏幕后重置
+                const margin = 50;
+                if (this.x < -margin || this.x > canvas.width + margin || 
+                    this.y < -margin || this.y > canvas.height + margin) {
+                    // 如果动力值也耗尽，则重置粒子
+                    if (this.power <= 0) {
+                        this.reset();
+                    }
+                }
+            }            
+            
+            draw() {
+                // 解析RGB颜色
+                const r = parseInt(this.color.slice(1, 3), 16);
+                const g = parseInt(this.color.slice(3, 5), 16);
+                const b = parseInt(this.color.slice(5, 7), 16);
+                
+                // 动力值影响发光效果
+                const powerFactor = this.power / this.maxPower;
+                const glowSize = this.size * 3;
+                const glowIntensity = this.alpha * 0.5 * powerFactor;
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, glowSize
+                );
+                gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${this.alpha * 0.5})`);
+                gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制粒子核心，亮度受动力值影响
+                const adjustedAlpha = this.alpha * (0.3 + 0.7 * powerFactor);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${adjustedAlpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+
+        // 波纹效果类
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = Math.max(canvas.width, canvas.height) * 0.04; // 最大半径
+                this.opacity = 0.8;
+                this.speed = 3;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            update() {
+                this.radius += this.speed;
+                this.opacity = 0.8 * (1 - this.radius / this.maxRadius);
+                
+                return this.radius < this.maxRadius;
+            }
+            
+            draw() {
+                // 解析RGB颜色
+                const r = parseInt(this.color.slice(1, 3), 16);
+                const g = parseInt(this.color.slice(3, 5), 16);
+                const b = parseInt(this.color.slice(5, 7), 16);
+                
+                // 绘制波纹
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        // 初始化对象
+        const particles = [];
+        const stars = [];
+        const ripples = [];
+        // 创建背景星星
+        for (let i = 0; i < CONFIG.backgroundStars; i++) {
+            stars.push(new Star());
+        }
+        
+        // 使用配置的粒子数量
+        for (let i = 0; i < CONFIG.particles.count; i++) {
+            particles.push(new Particle());
+        }
+        
+        // 限制帧率变量
+        let lastTime = 0;
+        const fpsInterval = 1000 / CONFIG.fps;
+        
+        // 动画循环
+        let lastFrameTime = 0;
+        let isInitialized = false;
+        
+        function animate(timestamp) {
+            // 第一帧初始化
+            if (!isInitialized) {
+                lastFrameTime = timestamp;
+                lastTime = timestamp;
+                isInitialized = true;
+            }
+            
+            // 计算真实的帧间隔时间
+            const deltaTime = timestamp - lastFrameTime;
+            lastFrameTime = timestamp;
+            
+            // 限制帧率
+            if (timestamp - lastTime < fpsInterval) {
+                requestAnimationFrame(animate);
+                return;
+            }
+            lastTime = timestamp;
+            
+            // 清除画布 - 使用配置的拖尾效果
+            ctx.fillStyle = `rgba(0, 0, 0, ${CONFIG.trailEffect})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const time = Date.now();
+            
+            // 更新并绘制背景星星
+            for (const star of stars) {
+                star.update(time);
+                star.draw();
+            }
+
+            // 更新并绘制波纹
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                const isActive = ripples[i].update();
+                ripples[i].draw();
+                
+                if (!isActive) {
+                    ripples.splice(i, 1);
+                }
+            }
+
+            // 更新并绘制粒子
+            for (const particle of particles) {
+                particle.update(time, deltaTime, mouseX, mouseY);
+            }    
+            // 处理粒子碰撞
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    particles[i].checkCollision(particles[j]);
+                }
+            }       
+            // 更新并绘制粒子
+            for (const particle of particles) {
+                particle.draw();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 窗口大小调整
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        
+        // 添加鼠标交互效果
+        let mouseX = centerX;
+        let mouseY = centerY;
+        let isMouseMoving = false;
+        let mouseTimeout;
+        
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            isMouseMoving = true;
+            
+            // 清除之前的超时
+            if (mouseTimeout) {
+                clearTimeout(mouseTimeout);
+            }
+            
+            // 设置新的超时，鼠标停止移动3秒后重置
+            mouseTimeout = setTimeout(() => {
+                isMouseMoving = false;
+            }, 3000);
+        });
+        
+        // 鼠标点击添加效果
+        canvas.addEventListener('click', (e) => {
+            // 添加波纹效果
+            ripples.push(new Ripple(e.clientX, e.clientY));
+            // 粒子转向效果
+            //for (const particle of particles) {particle.steer(e.clientX, e.clientY, 0.3, 120);}
+        }); 
+        
+        // 启动动画
+        animate(0);
+    </script>
+</body>
+</html>
