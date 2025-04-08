@@ -6,17 +6,19 @@
 
 1. 打开插件
 2. 将你希望使用的壁纸文件放入你思源笔记的工作空间文件夹 `\data\public\backgrounds\` 内。
-3. 打开设置界面，使用默认快捷键`ctrl+shift+F9`，或者在思源主界面右上角点击此插件的图标![sc_2025-04-08_12-32-06](assets/sc_2025-04-08_12-32-06-20250408123210-fwnp8uv.jpg)
+3. 打开设置界面，使用默认快捷键`ctrl+shift+F9`，或者在思源主界面右上角点击此插件的图标 ![toolbaricon](https://github.com/user-attachments/assets/2f74322e-abe5-4f21-b6df-cede7334c489)
 4. 点击 `重新加载资源文件` 按钮以重新加载壁纸文件，点击播放下一个切换壁纸。
 5. 可以使用快捷键`ctrl+shift+F8`快速切换壁纸。
 
 # 预览
 
-![sc_2025-04-08_12-18-23](assets/sc_2025-04-08_12-18-23-20250408121835-jl41rzr.jpg)![sc_2025-04-08_12-33-55](assets/sc_2025-04-08_12-33-55-20250408123359-zc1wto6.jpg)
+![preview](https://github.com/user-attachments/assets/c2b8598a-2b15-49fc-a19d-f3d24aabbe49)
+
+![设置](https://github.com/user-attachments/assets/605a2921-bae7-4038-9bce-56763e830892)
 
 # 资源文件使用说明
 
-![sc_2025-04-08_12-48-38](assets/sc_2025-04-08_12-48-38-20250408124845-cuz7242.jpg)
+![resource folder](https://github.com/user-attachments/assets/ab28d889-abfe-4036-b9d5-2fd06d6bbec1)
 
 `v://Siyuan` 是我的思源笔记工作空间，假如你的在其他盘符，那就去对应盘符。假如该文件夹不存在，插件第一次打开的时候会自动创建，并放入两个动态网页壁纸`space`和`statrs`。
 
@@ -26,7 +28,7 @@
 
 ## 动态网页壁纸
 
-必须放在文件夹内，文件夹的名称会被识别为壁纸名称，其中`index.html`作为壁纸主体会被加载。
+必须放在子文件夹内，文件夹的名称会被识别为壁纸名称，其中`index.html`作为壁纸主体会被加载。
 
 # 兼容性
 
@@ -41,9 +43,9 @@
 
 ## 其他主题
 
-壁纸的工作原理是在页面的底层添加了一个画布用来显示壁纸。假如你使用的其他主题,壁纸不能显示的时候，你可以使用`Developer Tools`找到叠加在上层的元素。将对应的css代码添加到`Code Snippet`中应用。
+壁纸的工作原理是在页面的底层添加了一个画布用来显示壁纸。假如你使用的其他主题,壁纸不能显示的时候，你可以使用`开发者工具`找到叠加在上层的元素。将对应的css代码添加到`代码片段`中应用。
 
-比如当你使用主题Savor时，在你的`Code Snippet`中添加这部分并启用。
+比如当你使用主题Savor时，在你的`代码片段`中添加这部分并启用。
 `
 #toolbar + .fn__flex {
     background-color: transparent;
