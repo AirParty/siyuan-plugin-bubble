@@ -14,6 +14,8 @@
 
 ![preview](https://github.com/user-attachments/assets/c2b8598a-2b15-49fc-a19d-f3d24aabbe49)
 
+![preview2](https://github.com/user-attachments/assets/617188b4-7dc0-4c20-9fb4-3b83df16b32e)
+
 ![设置](https://github.com/user-attachments/assets/605a2921-bae7-4038-9bce-56763e830892)
 
 # 资源文件使用说明
