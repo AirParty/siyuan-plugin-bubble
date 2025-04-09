@@ -24,7 +24,7 @@ Display document content in floating bubbles while providing customizable backgr
 
 # Resource File Instructions
 
-![resource folder](https://github.com/user-attachments/assets/ab28d889-abfe-4036-b9d5-2fd06d6bbec1)
+![resource folder](https://github.com/user-attachments/assets/63217ac3-561b-43fb-a342-b0d765fe733f)
 
 `v://Siyuan` is my Siyuan Note workspace. If yours is on a different site, navigate to the corresponding drive. If the folder doesn’t exist, the plugin will automatically create it on first launch and add two dynamic webpage wallpapers: `space` and `stars`.
 
