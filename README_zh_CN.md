@@ -20,7 +20,7 @@
 
 # 资源文件使用说明
 
-![resource folder](https://github.com/user-attachments/assets/ab28d889-abfe-4036-b9d5-2fd06d6bbec1)
+![resource folder](https://github.com/user-attachments/assets/63217ac3-561b-43fb-a342-b0d765fe733f)
 
 `v://Siyuan` 是我的思源笔记工作空间，假如你的在其他盘符，那就去对应盘符。假如该文件夹不存在，插件第一次打开的时候会自动创建，并放入两个动态网页壁纸`space`和`statrs`。
 
