@@ -2,7 +2,7 @@
   "name": "siyuan-plugin-bubble",
   "author": "niop",
   "url": "https://github.com/AirParty/siyuan-plugin-bubble",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minAppVersion": "3.0.1",
   "backends": [
     "windows",

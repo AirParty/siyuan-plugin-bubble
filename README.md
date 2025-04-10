@@ -4,6 +4,8 @@
 
 Display document content in floating bubbles while providing customizable backgrounds, supporting images, videos, and dynamic webpages.
 
+![sc_2025-04-10_17-49-05](https://github.com/user-attachments/assets/6f537e9a-6b68-4d80-9fc6-cec4943d506c)
+
 # Usage
 
 1. Open the plugin  
