@@ -6,6 +6,11 @@ Display document content in floating bubbles while providing customizable backgr
 
 ![sc_2025-04-10_17-49-05](https://github.com/user-attachments/assets/6f537e9a-6b68-4d80-9fc6-cec4943d506c)
 
+# update
+
+1.0.4: Fixed issues with the display of several buttons and dropdown indicators in the main interface and document tree.
+For other updates, please check the release page.
+
 # Usage
 
 1. Open the plugin  
